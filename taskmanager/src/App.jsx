@@ -1,52 +1,60 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
+import { TaskManagerProvider } from "./context/TaskManagerContext";
 import AddTaskForm from "./components/AddTaskForm";
-import TaskList from "./components/TaskList";
+import Header from "./components/Header";
 
 function App() {
-  const [taskName, setTaskName] = useState("");
-  // const [addedTask, setAddedTask] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [taskDetails, setTaskDetails] = useState([{}]);
-
-  const dateHandler = (e) => {
-    const dueDate = e.target.value;
-    setDueDate(dueDate);
+  const [taskListDetails, setTaskListDetails] = useState([]);
+  const uniqueID = useId();
+  const addTask = (taskDetails) => {
+    setTaskListDetails((prevTaskDetail) => [
+      ...prevTaskDetail,
+      { id: Date.now(), createdDate: Date.now(), ...taskDetails },
+    ]);
   };
+  console.log(taskListDetails);
+  const removeTask = () => {};
+  const updateTask = () => {};
+  const markAsCompleted = () => {};
+  useEffect(() => {
+    localStorage.setItem("taskDetail", JSON.stringify(taskListDetails));
+  }, [taskListDetails]);
 
-  const taskDetailsHandler = () => {
-    setTaskDetails({
-      taskName,
-      dueDate,
-    });
-    setTaskName("");
-    setDueDate("");
-    console.log(taskDetails);
-  };
   return (
-    <>
-      <div>
-        <label>Add your Task here</label>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            taskDetailsHandler();
-          }}
-        >
-          <input
-            name="AddTask"
-            value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
-          />
-          <input type="date" value={dueDate} onChange={dateHandler} />
+    <TaskManagerProvider
+      value={{
+        taskListDetails,
+        addTask,
+        removeTask,
+        updateTask,
+        markAsCompleted,
+      }}
+    >
+      <div className="bg-[#172842] min-h-screen py-8">
+        <div className="bg-[#284268] mt-14 w-full max-w-2xl mx-auto shadow-md rounded-lg px-4 py-3 text-white">
+          <h1 className="text-2xl font-bold text-center mb-8 mt-2 tetx-red">
+            Welcome to Task Manager
+          </h1>
+          <h3 className="text-2xl font-bold text-center mb-8 mt-2">
+            Add your task below
+          </h3>
+          <div className="mb-4">
+            {/* Add Task form goes here */}
+            <AddTaskForm />
+          </div>
+          <div className="flex flex-wrap gap-y-3">
+            {/*Loop taskList and Add Todo Item here */}
 
-          <button type="submit" onClick={taskDetailsHandler}>
-            Add Task
-          </button>
-        </form>
-
-        <TaskList taskDetails={taskDetails} />
+            {/* {todos.length > 0 &&
+              todos.map((todo) => (
+                <div key={todo.id} className="w-full">
+                  <TodoItem todo={todo} />
+                </div>
+              ))} */}
+          </div>
+        </div>
       </div>
-    </>
+    </TaskManagerProvider>
   );
 }
 
